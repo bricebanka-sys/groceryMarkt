@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
-    backgroundColor: "#dc2626",
+    backgroundColor: "#0080ff",
     // MODIFICATION 2: On ajoute une marge en haut pour s'assurer qu'il ne soit pas collé au texte
     marginTop: 10,
   },
   signOutText: {
-    color: "#0080ff",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
   },
