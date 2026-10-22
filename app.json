@@ -21,7 +21,7 @@
       "package": "com.cyriaquem.GroceryMarkt"
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
