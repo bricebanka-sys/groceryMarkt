@@ -1,6 +1,7 @@
 import { create } from "zustand";
+
 export type GroceryCategory =
-  "Produce" | "Vegetables" | "Dairy" | "Bakery" | "others";
+  "Produce" | "Vegetables" | "Dairy" | "Bakery" | "Snacks";
 export type GroceryPriority = "low" | "medium" | "high";
 
 export type GroceryItem = {
@@ -34,6 +35,12 @@ interface GroceryStore {
   clearPurchased: () => Promise<void>;
 }
 
+// Valide qu'un objet reçu de l'API est bien un article exploitable
+const isValidItem = (value: unknown): value is GroceryItem =>
+  !!value &&
+  typeof value === "object" &&
+  typeof (value as GroceryItem).id === "string";
+
 export const useGroceryStore = create<GroceryStore>((set, get) => ({
   items: [],
   isLoading: false,
@@ -44,10 +51,13 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await fetch("/api/items");
-      const payload = (await res.json()) as ItemsResponse;
-
       if (!res.ok) throw new Error(`Request Failed : ${res.status}`);
-      set({ items: payload.items });
+
+      const payload = (await res.json()) as ItemsResponse;
+      const list = Array.isArray(payload?.items) ? payload.items : [];
+
+      // On écarte tout élément vide ou invalide
+      set({ items: list.filter(isValidItem) });
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";
@@ -71,9 +81,12 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
           priority: input.priority,
         }),
       });
-      const payload = (await res.json()) as ItemResponse;
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
-      // const newItem = await res.json();
+
+      const payload = (await res.json()) as ItemResponse;
+      if (!isValidItem(payload?.item)) {
+        throw new Error("Invalid response from server");
+      }
 
       // Ajout du nouvel article tout en haut de la liste existante
       set((state) => ({ items: [payload.item, ...state.items] }));
@@ -86,7 +99,6 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
 
   // Action : Ajustement de la quantité d'un article
   updateQuantity: async (id: string, quantity: number) => {
-    // Ta logique pour modifier la quantité
     const nextQuantity = Math.max(1, quantity); // Sécurité : minimum 1
     set({ error: null });
 
@@ -96,8 +108,13 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity: nextQuantity }),
       });
-      const payload = (await res.json()) as ItemResponse;
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
+
+      const payload = (await res.json()) as ItemResponse;
+      if (!isValidItem(payload?.item)) {
+        throw new Error("Invalid response from server");
+      }
+
       set((state) => ({
         items: state.items.map((item) =>
           item.id === id ? payload.item : item,
@@ -111,14 +128,10 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
 
   // Action : Basculer l'état "Acheté" / "En attente"
   togglePurchased: async (id) => {
-    // Ta logique pour inverser l'état acheté/non acheté
-
     const currentItem = get().items.find((item) => item.id === id);
     if (!currentItem) return;
 
     const nextPurchased = !currentItem.purchased;
-
-    // Mise à jour locale instantanée
     set({ error: null });
 
     try {
@@ -127,9 +140,12 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ purchased: nextPurchased }),
       });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
 
       const payload = (await res.json()) as ItemResponse;
-      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      if (!isValidItem(payload?.item)) {
+        throw new Error("Invalid response from server");
+      }
 
       set((state) => ({
         items: state.items.map((item) =>
@@ -137,14 +153,13 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
         ),
       }));
     } catch (err: unknown) {
+      console.error("Error toggling purchased:", err);
       set({ error: "Something went wrong" });
     }
   },
 
   // Action : Supprimer un article
   removeItem: async (id) => {
-    // Ta logique pour supprimer un article
-
     set({ error: null });
     try {
       const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
@@ -158,8 +173,6 @@ export const useGroceryStore = create<GroceryStore>((set, get) => ({
   },
 
   clearPurchased: async () => {
-    // Ta logique pour nettoyer les articles achetés
-
     set({ error: null });
     try {
       const res = await fetch("/api/items/clear-purchased", { method: "POST" });

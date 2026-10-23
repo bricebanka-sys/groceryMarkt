@@ -7,7 +7,7 @@ export async function GET() {
     return Response.json({ items });
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Failed to fecht items";
+      error instanceof Error ? error.message : "Failed to fetch items";
     return Response.json({ error: message }, { status: 500 });
   }
 }
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       priority,
     });
 
-    return Response.json(newItem, { status: 201 });
+    return Response.json({ item: newItem }, { status: 201 });
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Failed to create item";
