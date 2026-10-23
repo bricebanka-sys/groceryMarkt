@@ -39,7 +39,8 @@
       ],
       "expo-secure-store",
       "@clerk/expo-native-components",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,
