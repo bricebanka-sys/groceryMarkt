@@ -40,7 +40,15 @@
       "expo-secure-store",
       "@clerk/expo-native-components",
       "expo-web-browser",
-      "expo-image"
+      "expo-image",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "grocerymarkt",
+          "organization": "mexess-team"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

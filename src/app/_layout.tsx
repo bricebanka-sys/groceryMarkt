@@ -1,4 +1,4 @@
-import { ClerkProvider } from "@clerk/expo";
+import { ClerkLoaded, ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import {
   DarkTheme,
@@ -17,11 +17,22 @@ if (!publishableKey) {
     "Ajoutez EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY dans votre fichier .env",
   );
 }
-export default function RootLayout() {
+
+import * as Sentry from "@sentry/react-native";
+
+// export default Sentry.wrap(App);
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+
+  integrations: [Sentry.feedbackIntegration()],
+});
+
+export default Sentry.wrap(function RootLayout() {
   const colorScheme = useColorScheme();
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-      <KeyboardProvider>
+      <ClerkLoaded>
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
@@ -29,7 +40,7 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerShown: false }} />
           </KeyboardProvider>
         </ThemeProvider>
-      </KeyboardProvider>
+      </ClerkLoaded>
     </ClerkProvider>
   );
-}
+});

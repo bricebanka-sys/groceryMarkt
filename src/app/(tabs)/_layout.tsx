@@ -15,8 +15,10 @@ export default function TabsLayout() {
   const tabTintColor = isDark ? "hsl(142 70% 54%)" : "hsl(147 75% 33%)";
 
   useEffect(() => {
-    loadItems();
-  }, []);
+    if (isLoaded && isSignedIn) {
+      loadItems();
+    }
+  }, [isLoaded, isSignedIn]);
 
   console.log("ITEMS:", items);
 

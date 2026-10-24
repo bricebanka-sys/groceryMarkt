@@ -20,6 +20,7 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
+    "@sentry/react-native": "^8.32.0",
     "drizzle-orm": "^0.45.4",
     "expo": "~55.0.32",
     "expo-auth-session": "~55.0.19",

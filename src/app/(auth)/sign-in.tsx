@@ -107,7 +107,8 @@ export default function SignInScreen() {
           </Pressable>
         </View>
         <Text className="mt-3 text-center text-sm leading-5 text-muted-foreground">
-          By continuing, you agree to our Terms and Privacy Policy.
+          By continuing, you agree to our Terms and Privacy Policy Mesmin
+          Vision.
         </Text>
       </View>
     </SafeAreaView>
